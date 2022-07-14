@@ -87,3 +87,5 @@ FROM cypress/browsers:latest
 # Best practice
 FROM cypress/browsers:node13.6.0-chrome80-ff72
 ```
+
+If you decide to use `latest`, it currently references image `cypress/browsers:node16.14.2-slim-chrome100-ff99-edge`.
