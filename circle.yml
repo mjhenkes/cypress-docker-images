@@ -269,35 +269,17 @@ jobs:
     machine:
       image: ubuntu-2004:202111-02
     parameters:
-      # imageType:
-      #   type: string
-      #   description: Either 'base', 'included' or 'browsers'
-      # dockerTag:
-      #   type: string
-      #   description: Image tag to build, should match Cypress version, like "3.8.1"
       resourceClass:
         type: string
         description: Resource class to use for this job
       platformArg:
         type: string
         description: '--platform arg for docker build'
-      # chromeVersion:
-      #   type: string
-      #   default: ''
-      #   description: Chrome version to expect in the base image, starts with "Google Chrome XX"
-      # firefoxVersion:
-      #   type: string
-      #   default: ''
-      #   description: Firefox version to expect in the base image, starts with "Mozilla Firefox XX"
-      # edgeVersion:
-      #   type: string
-      #   default: ''
-      #   description: Edge version to expect in the base image, starts with "Microsoft Edge"
     resource_class: << parameters.resourceClass >>
     steps:
-      - checkout
       - halt-if-docker-image-exists:
           imageName: cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >>
+      - checkout
       - run:
           name: building Docker image cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >>
           command: |
@@ -321,17 +303,17 @@ jobs:
     #             chromeVersion: << pipeline.parameters.chromeVersion >>
     #             firefoxVersion: << pipeline.parameters.firefoxVersion >>
     #             edgeVersion: << pipeline.parameters.edgeVersion >>
-    #   - when:
-    #       equal:
-    #         - included
-    #         - << pipeline.parameters.imageType >>
-    #       steps:
-    #         - test-included-image-versions:
-    #             cypressVersion: << pipeline.parameters.dockerTag >>
-    #             imageName: cypress/included:<< pipeline.parameters.dockerTag >>
-    #         - test-included-image:
-    #             cypressVersion: << pipeline.parameters.dockerTag >>
-    #             imageName: cypress/included:<< pipeline.parameters.dockerTag >>
+      - when:
+          equal:
+            - included
+            - << pipeline.parameters.imageType >>
+          steps:
+            - test-included-image-versions:
+                cypressVersion: << pipeline.parameters.dockerTag >>
+                imageName: cypress/included:<< pipeline.parameters.dockerTag >>
+            - test-included-image:
+                cypressVersion: << pipeline.parameters.dockerTag >>
+                imageName: cypress/included:<< pipeline.parameters.dockerTag >>
   push-images:
     machine:
       image: ubuntu-2004:202111-02
