@@ -286,7 +286,7 @@ jobs:
             docker build -t cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >> --platform << parameters.platformArg >> .
           working_directory: << pipeline.parameters.imageType >>/<< pipeline.parameters.dockerTag >>
     #   - when:
-    #       equal:
+    #       condition:
     #         - base
     #         - << pipeline.parameters.imageType >>
     #       steps:
@@ -304,9 +304,8 @@ jobs:
     #             firefoxVersion: << pipeline.parameters.firefoxVersion >>
     #             edgeVersion: << pipeline.parameters.edgeVersion >>
       - when:
-          equal:
-            - included
-            - << pipeline.parameters.imageType >>
+          condition:
+            equal: [ included, << pipeline.parameters.imageType >> ]
           steps:
             - test-included-image-versions:
                 cypressVersion: << pipeline.parameters.dockerTag >>
