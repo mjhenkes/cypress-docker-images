@@ -78,62 +78,62 @@ commands:
       imageName:
         type: string
         description: Cypress browser docker image to test
-      chromeVersion:
-        type: string
-        default: ''
-        description: Chrome version to expect in the base image, starts with "Google Chrome XX"
-      firefoxVersion:
-        type: string
-        default: ''
-        description: Firefox version to expect in the base image, starts with "Mozilla Firefox XX"
-      edgeVersion:
-        type: string
-        default: ''
-        description: Edge version to expect in the base image, starts with "Microsoft Edge"
+      # chromeVersion:
+      #   type: string
+      #   default: ''
+      #   description: Chrome version to expect in the base image, starts with "Google Chrome XX"
+      # firefoxVersion:
+      #   type: string
+      #   default: ''
+      #   description: Firefox version to expect in the base image, starts with "Mozilla Firefox XX"
+      # edgeVersion:
+      #   type: string
+      #   default: ''
+      #   description: Edge version to expect in the base image, starts with "Microsoft Edge"
     steps:
       - when:
-          condition: << parameters.chromeVersion >>
+          condition: << pipeline.parameters.chromeVersion >>
           steps:
             - run:
-                name: confirm image has Chrome << parameters.chromeVersion >>
+                name: confirm image has Chrome << pipeline.parameters.chromeVersion >>
                 command: |
                   if [[ "$(node -p process.arch)" == 'arm64' ]]; then
                       echo "Chrome does not support arm64 yet, skipping"
                       exit 0
                   fi
                   version=$(docker run << parameters.imageName >> google-chrome --version)
-                  if [[ "$version" =~ ^"<< parameters.chromeVersion >>" ]]; then
-                    echo "Image has the expected version of Chrome << parameters.chromeVersion >>"
+                  if [[ "$version" =~ ^"<< pipeline.parameters.chromeVersion >>" ]]; then
+                    echo "Image has the expected version of Chrome << pipeline.parameters.chromeVersion >>"
                     echo "found $version"
                   else
                     echo "Problem: image has unexpected Chrome version"
-                    echo "Expected << parameters.chromeVersion >> and got $version"
+                    echo "Expected << pipeline.parameters.chromeVersion >> and got $version"
                     exit 1
                   fi
       - when:
-          condition: << parameters.firefoxVersion >>
+          condition: << pipeline.parameters.firefoxVersion >>
           steps:
             - run:
-                name: confirm the image has Firefox << parameters.firefoxVersion >>
+                name: confirm the image has Firefox << pipeline.parameters.firefoxVersion >>
                 command: |
                   if [[ "$(node -p process.arch)" == 'arm64' ]]; then
                       echo "Firefox does not support arm64 yet, skipping"
                       exit 0
                   fi
                   version=$(docker run << parameters.imageName >> firefox --version)
-                  if [[ "$version" =~ ^"<< parameters.firefoxVersion >>" ]]; then
-                    echo "Image has the expected version of Firefox << parameters.firefoxVersion >>"
+                  if [[ "$version" =~ ^"<< pipeline.parameters.firefoxVersion >>" ]]; then
+                    echo "Image has the expected version of Firefox << pipeline.parameters.firefoxVersion >>"
                     echo "found $version"
                   else
                     echo "Problem: image has unexpected Firefox version"
-                    echo "Expected << parameters.firefoxVersion >> and got $version"
+                    echo "Expected << pipeline.parameters.firefoxVersion >> and got $version"
                     exit 1
                   fi
       - when:
-          condition: << parameters.edgeVersion >>
+          condition: << pipeline.parameters.edgeVersion >>
           steps:
             - run:
-                name: confirm the image has Edge << parameters.edgeVersion >>
+                name: confirm the image has Edge << pipeline.parameters.edgeVersion >>
                 command: |
                   if [[ "$(node -p process.arch)" == 'arm64' ]]; then
                       echo "Edge does not support arm64 yet, skipping"
@@ -141,7 +141,7 @@ commands:
                   fi
                   version=$(docker run << parameters.imageName >> edge --version)
                   if [[ "$version" ]]; then
-                    echo "Image has the a version of Edge << parameters.edgeVersion >>"
+                    echo "Image has the a version of Edge << pipeline.parameters.edgeVersion >>"
                     echo "found $version"
                   else
                     echo "Problem: image has no Edge version"
@@ -159,10 +159,10 @@ commands:
           no_output_timeout: 1m
           command: docker run cypress/test ./node_modules/.bin/cypress run
       - when:
-          condition: << parameters.chromeVersion >>
+          condition: << pipeline.parameters.chromeVersion >>
           steps:
             - run:
-                name: Test << parameters.chromeVersion >>
+                name: Test << pipeline.parameters.chromeVersion >>
                 no_output_timeout: 1m
                 command: |
                   if [[ "$(node -p process.arch)" == 'arm64' ]]; then
@@ -171,10 +171,10 @@ commands:
                   fi
                   docker run cypress/test ./node_modules/.bin/cypress run --browser chrome
       - when:
-          condition: << parameters.firefoxVersion >>
+          condition: << pipeline.parameters.firefoxVersion >>
           steps:
             - run:
-                name: Test << parameters.firefoxVersion >>
+                name: Test << pipeline.parameters.firefoxVersion >>
                 no_output_timeout: 1m
                 command: |
                   if [[ "$(node -p process.arch)" == 'arm64' ]]; then
@@ -183,10 +183,10 @@ commands:
                   fi
                   docker run cypress/test ./node_modules/.bin/cypress run --browser firefox
       - when:
-          condition: << parameters.edgeVersion >>
+          condition: << pipeline.parameters.edgeVersion >>
           steps:
             - run:
-                name: Test << parameters.edgeVersion >>
+                name: Test << pipeline.parameters.edgeVersion >>
                 no_output_timeout: 1m
                 command: |
                   if [[ "$(node -p process.arch)" == 'arm64' ]]; then
@@ -269,69 +269,69 @@ jobs:
     machine:
       image: ubuntu-2004:202111-02
     parameters:
-      imageType:
-        type: string
-        description: Either 'base', 'included' or 'browsers'
-      dockerTag:
-        type: string
-        description: Image tag to build, should match Cypress version, like "3.8.1"
+      # imageType:
+      #   type: string
+      #   description: Either 'base', 'included' or 'browsers'
+      # dockerTag:
+      #   type: string
+      #   description: Image tag to build, should match Cypress version, like "3.8.1"
       resourceClass:
         type: string
         description: Resource class to use for this job
       platformArg:
         type: string
         description: '--platform arg for docker build'
-      chromeVersion:
-        type: string
-        default: ''
-        description: Chrome version to expect in the base image, starts with "Google Chrome XX"
-      firefoxVersion:
-        type: string
-        default: ''
-        description: Firefox version to expect in the base image, starts with "Mozilla Firefox XX"
-      edgeVersion:
-        type: string
-        default: ''
-        description: Edge version to expect in the base image, starts with "Microsoft Edge"
+      # chromeVersion:
+      #   type: string
+      #   default: ''
+      #   description: Chrome version to expect in the base image, starts with "Google Chrome XX"
+      # firefoxVersion:
+      #   type: string
+      #   default: ''
+      #   description: Firefox version to expect in the base image, starts with "Mozilla Firefox XX"
+      # edgeVersion:
+      #   type: string
+      #   default: ''
+      #   description: Edge version to expect in the base image, starts with "Microsoft Edge"
     resource_class: << parameters.resourceClass >>
     steps:
       - checkout
       - halt-if-docker-image-exists:
-          imageName: cypress/<< parameters.imageType >>:<< parameters.dockerTag >>
+          imageName: cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >>
       - run:
-          name: building Docker image cypress/<< parameters.imageType >>:<< parameters.dockerTag >>
+          name: building Docker image cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >>
           command: |
-            docker build -t cypress/<< parameters.imageType >>:<< parameters.dockerTag >> --platform << parameters.platformArg >> .
-          working_directory: << parameters.imageType >>/<< parameters.dockerTag >>
+            docker build -t cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >> --platform << parameters.platformArg >> .
+          working_directory: << pipeline.parameters.imageType >>/<< pipeline.parameters.dockerTag >>
     #   - when:
     #       equal:
     #         - base
-    #         - << parameters.imageType >>
+    #         - << pipeline.parameters.imageType >>
     #       steps:
     #         - test-base-image:
-    #             imageName: cypress/base:<< parameters.dockerTag >>
-    #             nodeVersion: v<< parameters.dockerTag >>
+    #             imageName: cypress/base:<< pipeline.parameters.dockerTag >>
+    #             nodeVersion: v<< pipeline.parameters.dockerTag >>
     #   - when:
     #       equal:
     #         - browsers
-    #         - << parameters.imageType >>
+    #         - << pipeline.parameters.imageType >>
     #       steps:
     #         - test-browser-image:
-    #             imageName: cypress/browsers:<< parameters.dockerTag >>
-    #             chromeVersion: << parameters.chromeVersion >>
-    #             firefoxVersion: << parameters.firefoxVersion >>
-    #             edgeVersion: << parameters.edgeVersion >>
+    #             imageName: cypress/browsers:<< pipeline.parameters.dockerTag >>
+    #             chromeVersion: << pipeline.parameters.chromeVersion >>
+    #             firefoxVersion: << pipeline.parameters.firefoxVersion >>
+    #             edgeVersion: << pipeline.parameters.edgeVersion >>
     #   - when:
     #       equal:
     #         - included
-    #         - << parameters.imageType >>
+    #         - << pipeline.parameters.imageType >>
     #       steps:
     #         - test-included-image-versions:
-    #             cypressVersion: << parameters.dockerTag >>
-    #             imageName: cypress/included:<< parameters.dockerTag >>
+    #             cypressVersion: << pipeline.parameters.dockerTag >>
+    #             imageName: cypress/included:<< pipeline.parameters.dockerTag >>
     #         - test-included-image:
-    #             cypressVersion: << parameters.dockerTag >>
-    #             imageName: cypress/included:<< parameters.dockerTag >>
+    #             cypressVersion: << pipeline.parameters.dockerTag >>
+    #             imageName: cypress/included:<< pipeline.parameters.dockerTag >>
   push-images:
     machine:
       image: ubuntu-2004:202111-02
@@ -348,7 +348,7 @@ jobs:
     steps:
       - checkout
       - halt-if-docker-image-exists:
-          imageName: << parameters.dockerName >>:<< parameters.dockerTag >>
+          imageName: << parameters.dockerName >>:<< pipeline.parameters.dockerTag >>
       - halt-on-branch
       - run:
           name: build + push multi-arch image
@@ -367,7 +367,7 @@ jobs:
             docker login -u "$DOCKERHUB_USERNAME" --password "$DOCKERHUB_PASS"
             docker buildx create --name builder --use
             docker buildx inspect --bootstrap
-            DOCKER_TAG=<< parameters.dockerName >>:<< parameters.dockerTag >>
+            DOCKER_TAG=<< parameters.dockerName >>:<< pipeline.parameters.dockerTag >>
             docker buildx build --build-arg CI_XBUILD=1 --progress plain --platform linux/arm64,linux/amd64 -t $DOCKER_TAG --push .
 
             ## now, let's re-build those same images for Amazon ECR
@@ -393,22 +393,22 @@ workflows:
     jobs:
       - build-image:
           name: build+test cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >> arm64
-          dockerTag: << pipeline.parameters.dockerTag >>
-          imageType: << pipeline.parameters.imageType >>
+          # dockerTag: << pipeline.parameters.dockerTag >>
+          # imageType: << pipeline.parameters.imageType >>
           resourceClass: arm.large
           platformArg: linux/arm64
-          chromeVersion: << pipeline.parameters.chromeVersion >>
-          firefoxVersion: << pipeline.parameters.firefoxVersion >>
-          edgeVersion: << pipeline.parameters.edgeVersion >>
+          # chromeVersion: << pipeline.parameters.chromeVersion >>
+          # firefoxVersion: << pipeline.parameters.firefoxVersion >>
+          # edgeVersion: << pipeline.parameters.edgeVersion >>
       - build-image:
           name: build+test cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >> x64
-          dockerTag: << pipeline.parameters.dockerTag >>
-          imageType: << pipeline.parameters.imageType >>
+          # dockerTag: << pipeline.parameters.dockerTag >>
+          # imageType: << pipeline.parameters.imageType >>
           resourceClass: large
           platformArg: linux/amd64
-          chromeVersion: << pipeline.parameters.chromeVersion >>
-          firefoxVersion: << pipeline.parameters.firefoxVersion >>
-          edgeVersion: << pipeline.parameters.edgeVersion >>
+          # chromeVersion: << pipeline.parameters.chromeVersion >>
+          # firefoxVersion: << pipeline.parameters.firefoxVersion >>
+          # edgeVersion: << pipeline.parameters.edgeVersion >>
       - push-images:
           name: push cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >> images
           dockerName: cypress/<< pipeline.parameters.imageType >>
