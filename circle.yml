@@ -285,24 +285,26 @@ jobs:
           command: |
             docker build -t cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >> --platform << parameters.platformArg >> .
           working_directory: << pipeline.parameters.imageType >>/<< pipeline.parameters.dockerTag >>
-    #   - when:
-    #       condition:
-    #         - base
-    #         - << pipeline.parameters.imageType >>
-    #       steps:
-    #         - test-base-image:
-    #             imageName: cypress/base:<< pipeline.parameters.dockerTag >>
-    #             nodeVersion: v<< pipeline.parameters.dockerTag >>
-    #   - when:
-    #       equal:
-    #         - browsers
-    #         - << pipeline.parameters.imageType >>
-    #       steps:
-    #         - test-browser-image:
-    #             imageName: cypress/browsers:<< pipeline.parameters.dockerTag >>
-    #             chromeVersion: << pipeline.parameters.chromeVersion >>
-    #             firefoxVersion: << pipeline.parameters.firefoxVersion >>
-    #             edgeVersion: << pipeline.parameters.edgeVersion >>
+      - when:
+          condition:
+            equal:
+              - base
+              - << pipeline.parameters.imageType >>
+          steps:
+            - test-base-image:
+                imageName: cypress/base:<< pipeline.parameters.dockerTag >>
+                nodeVersion: v<< pipeline.parameters.dockerTag >>
+      - when:
+          condition:
+            equal:
+              - browsers
+              - << pipeline.parameters.imageType >>
+          steps:
+            - test-browser-image:
+                imageName: cypress/browsers:<< pipeline.parameters.dockerTag >>
+                chromeVersion: << pipeline.parameters.chromeVersion >>
+                firefoxVersion: << pipeline.parameters.firefoxVersion >>
+                edgeVersion: << pipeline.parameters.edgeVersion >>
       - when:
           condition:
             equal: [ included, << pipeline.parameters.imageType >> ]
