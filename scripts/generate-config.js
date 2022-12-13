@@ -1,41 +1,34 @@
 const path = require('path')
 const fs = require('fs')
-const os = require('os')
 const yaml = require('js-yaml');
 
 const imageType = process.argv[2]
-const versionTag = process.argv[3]
+const imageTag = process.argv[3]
 
 if (!imageType) {
   console.error('expected an image type like included')
   process.exit(1)
 }
 
-if (!versionTag) {
+if (!imageTag) {
   console.error('expected Cypress version argument like 3.8.3')
   process.exit(1)
 }
-const circleCiConfig = yaml.load(fs.readFileSync(path.join(__dirname, '..', 'circle.yml')))
-console.log(circleCiConfig)
-
-const circleHeader = fs.readFileSync(path.join(__dirname, 'includes', 'circle-header.yml')).toString()
-
-const splitImageFolderName = (folderName) => {
-  const [name, tag] = folderName.split('/')
-  return { name, tag }
-}
 
 const getImageType = (imageType) => {
-  return imageType.includes('base') ? 'base' : imageType.includes('browser') ? 'browser' : 'included'
+  switch(imageType) {
+    case 'base':
+      return 'base'
+    case 'browsers':
+      return 'browsers'
+    case 'included':
+      return 'included'
+    default:
+      throw new Error(`Invalid image type of ${imageType}. Must be either base, browsers, or included`)
+  }
 }
 
 const sanitizedImageType = getImageType(imageType)
-
-const getDockerArchFromNodeArch = (nodeArch) => {
-  if (nodeArch === 'arm64') return 'linux/arm64'
-  if (nodeArch === 'x64') return 'linux/amd64'
-  throw new Error(`unrecognized arch in getDockerArchFromNodeArch: ${nodeArch}`)
-}
 
 const getBrowserVersions = (tag) => {
   // default to empty string
@@ -45,106 +38,50 @@ const getBrowserVersions = (tag) => {
     edgeVersion: ""
   }
 
-  if (sanitizedImageType !== 'browser') {
+  if (sanitizedImageType !== 'browsers') {
+    console.log('sanitizedImageType not browsers')
     return browsers
   }
+
   if (tag.includes('-chrome')) {
-    browsers.chromeVersion = "Google Chrome ${image.tag.match(/-chrome\d*/)[0].substring(7)}"
+    browsers.chromeVersion = `Google Chrome ${tag.match(/-chrome\d*/)[0].substring(7)}`
   }
 
   if (tag.includes('-ff')) {
-    browsers.firefoxVersion = "Mozilla Firefox ${image.tag.match(/-chrome\d*/)[0].substring(7)}"
+    browsers.firefoxVersion = `Mozilla Firefox ${tag.match(/-chrome\d*/)[0].substring(7)}`
   }
 
   if (tag.includes('-edge')) {
     browsers.edgeVersion = "Microsoft Edge"
   }
+  console.log('returned browsers ', browsers)
   return browsers
 }
 
-const formWorkflow = (image) => {
-  let yml = `    build-${sanitizedImageType}-images:
-        jobs:`
-
-  const arches = ['arm64', 'x64']
-
-  for (const arch of arches) {
-    yml +=
-      os.EOL +
-      `            - build-${sanitizedImageType}-image:
-                name: "build+test ${sanitizedImageType} ${image.tag} ${arch}"
-                dockerTag: "${image.tag}"
-                resourceClass: ${arch === 'arm64' ? 'arm.large' : 'large'}
-                platformArg: ${getDockerArchFromNodeArch(arch)}`
-
-    // add browser versions
-    if (sanitizedImageType === 'browser') {
-      if (image.tag.includes('-chrome')) {
-        yml =
-          yml +
-          `
-                chromeVersion: "Google Chrome ${image.tag.match(/-chrome\d*/)[0].substring(7)}"`
-      }
-
-      if (image.tag.includes('-ff')) {
-        yml =
-          yml +
-          `
-                firefoxVersion: "Mozilla Firefox ${image.tag.match(/-ff\d*/)[0].substring(3)}"`
-      }
-
-      if (image.tag.includes('-edge')) {
-        yml =
-          yml +
-          `
-                edgeVersion: "Microsoft Edge"`
-      }
-    }
-  }
-
-  yml +=
-    os.EOL +
-    `            - push-images:
-                name: "push ${sanitizedImageType} ${image.tag} images"
-                dockerName: 'cypress/${sanitizedImageType === 'browser' ? 'browsers' : sanitizedImageType}'
-                dockerTag: '${image.tag}'
-                workingDirectory: '~/project/${sanitizedImageType === 'browser' ? 'browsers' : sanitizedImageType}/${
-      image.tag
-    }'
-                context: test-runner:docker-push
-                requires:`
-
-  for (const arch of arches) {
-    yml += os.EOL + `                    - "build+test ${sanitizedImageType} ${image.tag} ${arch}"`
-  }
-
-  return yml
-}
-
-const updateConfigFile = ({ name, tag }) => {
+const updateConfigFile = (circleCiConfig) => {
   circleCiConfig.parameters.imageType.default = sanitizedImageType
-  circleCiConfig.parameters.dockerTag.default = tag
+  circleCiConfig.parameters.dockerTag.default = imageTag
+
   const {
     chromeVersion,
     firefoxVersion,
     edgeVersion
-  } = getBrowserVersions(tag)
+  } = getBrowserVersions(imageTag)
+
   circleCiConfig.parameters.chromeVersion.default = chromeVersion
   circleCiConfig.parameters.firefoxVersion.default = firefoxVersion
   circleCiConfig.parameters.edgeVersion.default = edgeVersion
+
+  return circleCiConfig
 }
 
-const writeConfigFile = (image) => {
-  const workflow = formWorkflow(image)
-  const text = circleHeader.trim() + os.EOL + workflow
-  fs.writeFileSync('circle.yml', text, 'utf8')
+const writeConfigFile = () => {
+  const circleCiConfig = yaml.load(fs.readFileSync(path.join(__dirname, '..', 'circle.yml')))
+  
+  updateConfigFile(circleCiConfig)
+
+  fs.writeFileSync('circle.yml', yaml.dump(circleCiConfig, { lineWidth: -1 }), 'utf8')
   console.log('Generated circle.yml')
 }
 
-const outputFolder = path.join(imageType, versionTag)
-console.log('** outputFolder : %s', outputFolder)
-
-const image = splitImageFolderName(outputFolder)
-console.log('** image : %s \n', image)
-
-// writeConfigFile(image)
+writeConfigFile()

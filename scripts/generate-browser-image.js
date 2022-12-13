@@ -212,7 +212,7 @@ console.log(
 )
 
 // GENERATE BROWSER CONFIG
-require("child_process").fork(__dirname + "/generate-config.js", ["browser", folderName])
+require("child_process").fork(__dirname + "/generate-config.js", ["browsers", folderName])
 
 // GENERATE BROWSER README & UPDATE CHANGELOG
 require("child_process").fork(__dirname + "/generate-browser-readme.js", [

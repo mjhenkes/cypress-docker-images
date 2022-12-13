@@ -32,7 +32,7 @@ if (shelljs.test("-d", outputFolder)) {
 }
 
 console.log('creating "%s"', outputFolder)
-// shelljs.mkdir(outputFolder)
+shelljs.mkdir(outputFolder)
 
 const folderName = outputFolder.split("/")[1]
 
@@ -160,7 +160,7 @@ Please add the newly generated folder ${outputFolder} to Git. Build the Docker c
 require("child_process").fork(__dirname + "/generate-config.js", ["included", folderName])
 
 // GENERATE INCLUDED README WITH UPDATE CHANGELOG
-// require("child_process").fork(__dirname + "/generate-included-readme.js", [folderName, baseImageTag])
+require("child_process").fork(__dirname + "/generate-included-readme.js", [folderName, baseImageTag])
 
 // ASK USER IF THEY WANT TO COMMIT CHANGES
-// require("child_process").fork(__dirname + "/generate-commit.js", ["included", folderName])
+require("child_process").fork(__dirname + "/generate-commit.js", ["included", folderName])
