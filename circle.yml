@@ -394,6 +394,7 @@ workflows:
       - build-image:
           name: build+test cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >> arm64
           dockerTag: << pipeline.parameters.dockerTag >>
+          imageType: << pipeline.parameters.imageType >>
           resourceClass: arm.large
           platformArg: linux/arm64
           chromeVersion: << pipeline.parameters.chromeVersion >>
@@ -402,6 +403,7 @@ workflows:
       - build-image:
           name: build+test cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >> x64
           dockerTag: << pipeline.parameters.dockerTag >>
+          imageType: << pipeline.parameters.imageType >>
           resourceClass: large
           platformArg: linux/amd64
           chromeVersion: << pipeline.parameters.chromeVersion >>
