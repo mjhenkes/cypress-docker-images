@@ -55,9 +55,6 @@ commands:
   test-base-image:
     description: Build a test image from base image and test it
     parameters:
-      nodeVersion:
-        type: string
-        description: Node version to expect in the base image, starts with "v"
       imageName:
         type: string
         description: Cypress base docker image to test
@@ -78,18 +75,6 @@ commands:
       imageName:
         type: string
         description: Cypress browser docker image to test
-      # chromeVersion:
-      #   type: string
-      #   default: ''
-      #   description: Chrome version to expect in the base image, starts with "Google Chrome XX"
-      # firefoxVersion:
-      #   type: string
-      #   default: ''
-      #   description: Firefox version to expect in the base image, starts with "Mozilla Firefox XX"
-      # edgeVersion:
-      #   type: string
-      #   default: ''
-      #   description: Edge version to expect in the base image, starts with "Microsoft Edge"
     steps:
       - when:
           condition: << pipeline.parameters.chromeVersion >>
@@ -197,24 +182,21 @@ commands:
   test-included-image-versions:
     description: Testing pre-installed versions
     parameters:
-      cypressVersion:
-        type: string
-        description: Cypress version to test, like "4.0.0"
       imageName:
         type: string
         description: Cypress included docker image to test
     steps:
       - run:
           name: Print versions
-          command: docker run -it --entrypoint cypress cypress/included:<< parameters.cypressVersion >> version
+          command: docker run -it --entrypoint cypress << parameters.imageName >> version
       - run:
           name: Print info
-          command: docker run -it --entrypoint cypress cypress/included:<< parameters.cypressVersion >> info
+          command: docker run -it --entrypoint cypress << parameters.imageName >> info
       - run:
           name: Check Node version
           command: |
-            export NODE_VERSION=$(docker run --entrypoint node cypress/included:<< parameters.cypressVersion >> --version)
-            export CYPRESS_NODE_VERSION=$(docker run --entrypoint cypress cypress/included:<< parameters.cypressVersion >> version --component node)
+            export NODE_VERSION=$(docker run --entrypoint node << parameters.imageName >> --version)
+            export CYPRESS_NODE_VERSION=$(docker run --entrypoint cypress << parameters.imageName >> version --component node)
             echo "Included Node $NODE_VERSION"
             echo "Cypress includes Node $CYPRESS_NODE_VERSION"
             # "node --version" returns something like "v12.1.2"
@@ -230,9 +212,6 @@ commands:
   test-included-image:
     description: Testing Docker image with Cypress pre-installed
     parameters:
-      cypressVersion:
-        type: string
-        description: Cypress version to test, like "4.0.0"
       imageName:
         type: string
         description: Cypress included docker image to test
@@ -245,7 +224,7 @@ commands:
             cd test-project
 
             echo "Testing using Electron browser"
-            docker run -it -v $PWD:/e2e -w /e2e cypress/included:<< parameters.cypressVersion >>
+            docker run -it -v $PWD:/e2e -w /e2e << parameters.imageName >>
 jobs:
   lint-markdown:
     executor:
@@ -293,7 +272,6 @@ jobs:
           steps:
             - test-base-image:
                 imageName: cypress/base:<< pipeline.parameters.dockerTag >>
-                nodeVersion: v<< pipeline.parameters.dockerTag >>
       - when:
           condition:
             equal:
@@ -302,18 +280,15 @@ jobs:
           steps:
             - test-browser-image:
                 imageName: cypress/browsers:<< pipeline.parameters.dockerTag >>
-                chromeVersion: << pipeline.parameters.chromeVersion >>
-                firefoxVersion: << pipeline.parameters.firefoxVersion >>
-                edgeVersion: << pipeline.parameters.edgeVersion >>
       - when:
           condition:
-            equal: [ included, << pipeline.parameters.imageType >> ]
+            equal: 
+              - included
+              - << pipeline.parameters.imageType >>
           steps:
             - test-included-image-versions:
-                cypressVersion: << pipeline.parameters.dockerTag >>
                 imageName: cypress/included:<< pipeline.parameters.dockerTag >>
             - test-included-image:
-                cypressVersion: << pipeline.parameters.dockerTag >>
                 imageName: cypress/included:<< pipeline.parameters.dockerTag >>
   push-images:
     machine:
@@ -329,7 +304,6 @@ jobs:
         type: string
         description: Directory with the Dockerfile
     steps:
-      - checkout
       - halt-if-docker-image-exists:
           imageName: << parameters.dockerName >>:<< pipeline.parameters.dockerTag >>
       - halt-on-branch
@@ -376,22 +350,12 @@ workflows:
     jobs:
       - build-image:
           name: build+test cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >> arm64
-          # dockerTag: << pipeline.parameters.dockerTag >>
-          # imageType: << pipeline.parameters.imageType >>
           resourceClass: arm.large
           platformArg: linux/arm64
-          # chromeVersion: << pipeline.parameters.chromeVersion >>
-          # firefoxVersion: << pipeline.parameters.firefoxVersion >>
-          # edgeVersion: << pipeline.parameters.edgeVersion >>
       - build-image:
           name: build+test cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >> x64
-          # dockerTag: << pipeline.parameters.dockerTag >>
-          # imageType: << pipeline.parameters.imageType >>
           resourceClass: large
           platformArg: linux/amd64
-          # chromeVersion: << pipeline.parameters.chromeVersion >>
-          # firefoxVersion: << pipeline.parameters.firefoxVersion >>
-          # edgeVersion: << pipeline.parameters.edgeVersion >>
       - push-images:
           name: push cypress/<< pipeline.parameters.imageType >>:<< pipeline.parameters.dockerTag >> images
           dockerName: cypress/<< pipeline.parameters.imageType >>
