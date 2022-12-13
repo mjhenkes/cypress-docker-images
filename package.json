@@ -55,5 +55,8 @@
     "transform": {
       "^.+\\.jsx?$": "babel-jest"
     }
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
   }
 }

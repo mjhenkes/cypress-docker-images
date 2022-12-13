@@ -1,6 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const os = require('os')
+const yaml = require('js-yaml');
 
 const imageType = process.argv[2]
 const versionTag = process.argv[3]
@@ -14,6 +15,8 @@ if (!versionTag) {
   console.error('expected Cypress version argument like 3.8.3')
   process.exit(1)
 }
+const circleCiConfig = yaml.load(fs.readFileSync(path.join(__dirname, '..', 'circle.yml')))
+console.log(circleCiConfig)
 
 const circleHeader = fs.readFileSync(path.join(__dirname, 'includes', 'circle-header.yml')).toString()
 
@@ -32,6 +35,31 @@ const getDockerArchFromNodeArch = (nodeArch) => {
   if (nodeArch === 'arm64') return 'linux/arm64'
   if (nodeArch === 'x64') return 'linux/amd64'
   throw new Error(`unrecognized arch in getDockerArchFromNodeArch: ${nodeArch}`)
+}
+
+const getBrowserVersions = (tag) => {
+  // default to empty string
+  const browsers = {
+    chromeVersion: "",
+    firefoxVersion: "",
+    edgeVersion: ""
+  }
+
+  if (sanitizedImageType !== 'browser') {
+    return browsers
+  }
+  if (tag.includes('-chrome')) {
+    browsers.chromeVersion = "Google Chrome ${image.tag.match(/-chrome\d*/)[0].substring(7)}"
+  }
+
+  if (tag.includes('-ff')) {
+    browsers.firefoxVersion = "Mozilla Firefox ${image.tag.match(/-chrome\d*/)[0].substring(7)}"
+  }
+
+  if (tag.includes('-edge')) {
+    browsers.edgeVersion = "Microsoft Edge"
+  }
+  return browsers
 }
 
 const formWorkflow = (image) => {
@@ -93,6 +121,19 @@ const formWorkflow = (image) => {
   return yml
 }
 
+const updateConfigFile = ({ name, tag }) => {
+  circleCiConfig.parameters.imageType.default = sanitizedImageType
+  circleCiConfig.parameters.dockerTag.default = tag
+  const {
+    chromeVersion,
+    firefoxVersion,
+    edgeVersion
+  } = getBrowserVersions(tag)
+  circleCiConfig.parameters.chromeVersion.default = chromeVersion
+  circleCiConfig.parameters.firefoxVersion.default = firefoxVersion
+  circleCiConfig.parameters.edgeVersion.default = edgeVersion
+}
+
 const writeConfigFile = (image) => {
   const workflow = formWorkflow(image)
   const text = circleHeader.trim() + os.EOL + workflow
@@ -106,4 +147,4 @@ console.log('** outputFolder : %s', outputFolder)
 const image = splitImageFolderName(outputFolder)
 console.log('** image : %s \n', image)
 
-writeConfigFile(image)
+// writeConfigFile(image)

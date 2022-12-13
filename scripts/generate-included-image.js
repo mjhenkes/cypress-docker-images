@@ -11,10 +11,12 @@ if (!versionTag || !isStrictSemver(versionTag)) {
   console.error('expected Cypress version argument like "3.8.3"')
   process.exit(1)
 }
+
 if (!baseImageTag) {
   console.error('expected base Docker image tag like "cypress/browsers:node12.6.0-chrome77"')
   process.exit(1)
 }
+
 if (!baseImageTag.startsWith("cypress/browsers:")) {
   console.error('expected the base Docker image tag to be one of "cypress/browsers:*"')
   console.error('but it was "%s"', baseImageTag)
@@ -28,8 +30,9 @@ if (shelljs.test("-d", outputFolder)) {
   console.log('existing folder "%s" found', outputFolder)
   outputFolder = path.join("included", `${versionTag}-${baseImageTag.split(":")[1]}`)
 }
+
 console.log('creating "%s"', outputFolder)
-shelljs.mkdir(outputFolder)
+// shelljs.mkdir(outputFolder)
 
 const folderName = outputFolder.split("/")[1]
 
@@ -103,7 +106,7 @@ RUN echo "whoami: $(whoami)" \\
 ENTRYPOINT ["cypress", "run"]
 `
 const dockerFilename = path.join(outputFolder, "Dockerfile")
-fs.writeFileSync(dockerFilename, Dockerfile.trim() + "\n", "utf8")
+// fs.writeFileSync(dockerFilename, Dockerfile.trim() + "\n", "utf8")
 console.log("Saved %s", dockerFilename)
 
 const README = `
@@ -130,7 +133,7 @@ $ docker run -it -v $PWD:/e2e -w /e2e cypress/included:${folderName}
 `
 
 const readmeFilename = path.join(outputFolder, "README.md")
-fs.writeFileSync(readmeFilename, README.trim() + "\n", "utf8")
+// fs.writeFileSync(readmeFilename, README.trim() + "\n", "utf8")
 console.log("Saved %s", readmeFilename)
 
 // to make building images simpler and to follow the same pattern as previous builds
@@ -146,7 +149,7 @@ docker build -t $LOCAL_NAME .
 `
 
 const buildFilename = path.join(outputFolder, "build.sh")
-fs.writeFileSync(buildFilename, buildScript.trim() + "\n", "utf8")
+// fs.writeFileSync(buildFilename, buildScript.trim() + "\n", "utf8")
 shelljs.chmod("a+x", buildFilename)
 console.log("Saved %s", buildFilename)
 
@@ -157,7 +160,7 @@ Please add the newly generated folder ${outputFolder} to Git. Build the Docker c
 require("child_process").fork(__dirname + "/generate-config.js", ["included", folderName])
 
 // GENERATE INCLUDED README WITH UPDATE CHANGELOG
-require("child_process").fork(__dirname + "/generate-included-readme.js", [folderName, baseImageTag])
+// require("child_process").fork(__dirname + "/generate-included-readme.js", [folderName, baseImageTag])
 
 // ASK USER IF THEY WANT TO COMMIT CHANGES
-require("child_process").fork(__dirname + "/generate-commit.js", ["included", folderName])
+// require("child_process").fork(__dirname + "/generate-commit.js", ["included", folderName])
