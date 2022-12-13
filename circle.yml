@@ -303,35 +303,35 @@ jobs:
           command: |
             docker build -t cypress/<< parameters.imageType >>:<< parameters.dockerTag >> --platform << parameters.platformArg >> .
           working_directory: << parameters.imageType >>/<< parameters.dockerTag >>
-      - when:
-          equal:
-            - base
-            - << parameters.imageType >>
-          steps:
-            - test-base-image:
-                imageName: cypress/base:<< parameters.dockerTag >>
-                nodeVersion: v<< parameters.dockerTag >>
-      - when:
-          equal:
-            - browsers
-            - << parameters.imageType >>
-          steps:
-            - test-browser-image:
-                imageName: cypress/browsers:<< parameters.dockerTag >>
-                chromeVersion: << parameters.chromeVersion >>
-                firefoxVersion: << parameters.firefoxVersion >>
-                edgeVersion: << parameters.edgeVersion >>
-      - when:
-          equal:
-            - included
-            - << parameters.imageType >>
-          steps:
-            - test-included-image-versions:
-                cypressVersion: << parameters.dockerTag >>
-                imageName: cypress/included:<< parameters.dockerTag >>
-            - test-included-image:
-                cypressVersion: << parameters.dockerTag >>
-                imageName: cypress/included:<< parameters.dockerTag >>
+    #   - when:
+    #       equal:
+    #         - base
+    #         - << parameters.imageType >>
+    #       steps:
+    #         - test-base-image:
+    #             imageName: cypress/base:<< parameters.dockerTag >>
+    #             nodeVersion: v<< parameters.dockerTag >>
+    #   - when:
+    #       equal:
+    #         - browsers
+    #         - << parameters.imageType >>
+    #       steps:
+    #         - test-browser-image:
+    #             imageName: cypress/browsers:<< parameters.dockerTag >>
+    #             chromeVersion: << parameters.chromeVersion >>
+    #             firefoxVersion: << parameters.firefoxVersion >>
+    #             edgeVersion: << parameters.edgeVersion >>
+    #   - when:
+    #       equal:
+    #         - included
+    #         - << parameters.imageType >>
+    #       steps:
+    #         - test-included-image-versions:
+    #             cypressVersion: << parameters.dockerTag >>
+    #             imageName: cypress/included:<< parameters.dockerTag >>
+    #         - test-included-image:
+    #             cypressVersion: << parameters.dockerTag >>
+    #             imageName: cypress/included:<< parameters.dockerTag >>
   push-images:
     machine:
       image: ubuntu-2004:202111-02
