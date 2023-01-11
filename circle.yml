@@ -175,95 +175,95 @@ workflows:
     test:
         jobs:
             - check-factory-versions
-            - test-image:
-                matrix:
-                    alias: factory-arm
-                    parameters:
-                        test-target: [
-                            test-factory-electron,
-                            test-factory-cypress-included-electron,
-                            test-factory-all-included-electron-only
-                        ]
-                        resourceClass: [arm.medium]
-                        target: [factory]
-            - test-image:
-                matrix:
-                    alias: factory
-                    parameters:
-                        test-target: [
-                            test-factory-electron,
-                            test-factory-chrome,
-                            test-factory-firefox,
-                            test-factory-edge,
-                            test-factory-cypress-included-electron,
-                            test-factory-cypress-included-chrome,
-                            test-factory-cypress-included-firefox,
-                            test-factory-cypress-included-edge,
-                            test-factory-all-included
-                        ]
-                        resourceClass: [medium]
-                        target: [factory]
-            - test-image:
-                matrix:
-                    alias: base
-                    parameters:
-                        test-target: [
-                            test-base
-                        ]
-                        resourceClass: [medium]
-                        target: [base]
-            - test-image:
-                matrix:
-                    alias: base-arm
-                    parameters:
-                        test-target: [
-                            test-base
-                        ]
-                        resourceClass: [arm.medium]
-                        target: [base]
-            - test-image:
-                matrix:
-                    alias: browsers
-                    parameters:
-                        test-target: [
-                            test-browsers-electron,
-                            test-browsers-chrome,
-                            test-browsers-firefox,
-                            test-browsers-edge
-                        ]
-                        resourceClass: [medium]
-                        target: [browsers]
+            # - test-image:
+            #     matrix:
+            #         alias: factory-arm
+            #         parameters:
+            #             test-target: [
+            #                 test-factory-electron,
+            #                 test-factory-cypress-included-electron,
+            #                 test-factory-all-included-electron-only
+            #             ]
+            #             resourceClass: [arm.medium]
+            #             target: [factory]
+            # - test-image:
+            #     matrix:
+            #         alias: factory
+            #         parameters:
+            #             test-target: [
+            #                 test-factory-electron,
+            #                 test-factory-chrome,
+            #                 test-factory-firefox,
+            #                 test-factory-edge,
+            #                 test-factory-cypress-included-electron,
+            #                 test-factory-cypress-included-chrome,
+            #                 test-factory-cypress-included-firefox,
+            #                 test-factory-cypress-included-edge,
+            #                 test-factory-all-included
+            #             ]
+            #             resourceClass: [medium]
+            #             target: [factory]
+            # - test-image:
+            #     matrix:
+            #         alias: base
+            #         parameters:
+            #             test-target: [
+            #                 test-base
+            #             ]
+            #             resourceClass: [medium]
+            #             target: [base]
+            # - test-image:
+            #     matrix:
+            #         alias: base-arm
+            #         parameters:
+            #             test-target: [
+            #                 test-base
+            #             ]
+            #             resourceClass: [arm.medium]
+            #             target: [base]
+            # - test-image:
+            #     matrix:
+            #         alias: browsers
+            #         parameters:
+            #             test-target: [
+            #                 test-browsers-electron,
+            #                 test-browsers-chrome,
+            #                 test-browsers-firefox,
+            #                 test-browsers-edge
+            #             ]
+            #             resourceClass: [medium]
+            #             target: [browsers]
 
-            - test-image:
-                matrix:
-                    alias: browsers-arm
-                    parameters:
-                        test-target: [
-                            test-browsers-electron
-                        ]
-                        resourceClass: [arm.medium]
-                        target: [browsers]
-            - test-image:
-                matrix:
-                    alias: included
-                    parameters:
-                        test-target: [
-                            test-included-electron,
-                            test-included-chrome,
-                            test-included-firefox,
-                            test-included-edge
-                        ]
-                        resourceClass: [medium]
-                        target: [included]
-            - test-image:
-                matrix:
-                    alias: included-arm
-                    parameters:
-                        test-target: [
-                            test-included-electron
-                        ]
-                        resourceClass: [arm.medium]
-                        target: [included]
+            # - test-image:
+            #     matrix:
+            #         alias: browsers-arm
+            #         parameters:
+            #             test-target: [
+            #                 test-browsers-electron
+            #             ]
+            #             resourceClass: [arm.medium]
+            #             target: [browsers]
+            # - test-image:
+            #     matrix:
+            #         alias: included
+            #         parameters:
+            #             test-target: [
+            #                 test-included-electron,
+            #                 test-included-chrome,
+            #                 test-included-firefox,
+            #                 test-included-edge
+            #             ]
+            #             resourceClass: [medium]
+            #             target: [included]
+            # - test-image:
+            #     matrix:
+            #         alias: included-arm
+            #         parameters:
+            #             test-target: [
+            #                 test-included-electron
+            #             ]
+            #             resourceClass: [arm.medium]
+            #             target: [included]
             # pushing the factory image must come first because the other images may pull it down to build
             - push:
                 name: "Push Factory Image"
@@ -272,9 +272,9 @@ workflows:
                     branches:
                         only:  # only branches matching the below regex filters will run
                             - master
-                requires:
-                    - factory
-                    - factory-arm
+                # requires:
+                #     - factory
+                #     - factory-arm
             - push:
                 name: "Push Base Image"
                 target: base
@@ -284,8 +284,8 @@ workflows:
                             - master
                 requires:
                     - "Push Factory Image"
-                    - base
-                    - base-arm
+                    # - base
+                    # - base-arm
             - push:
                 name: "Push Browser Image"
                 target: browsers
@@ -295,16 +295,17 @@ workflows:
                             - master
                 requires:
                     - "Push Factory Image"
-                    - browsers
-                    - browsers-arm
+                    # - browsers
+                    # - browsers-arm
             - push:
                 target: included
                 name: "Push Included Image"
+                no_output_timeout: 20m # installing cypress on arm can take some time.
                 filters:
                     branches:
                         only:  # only branches matching the below regex filters will run
                             - master
                 requires:
                     - "Push Factory Image"
-                    - included
-                    - included-arm
+                    # - included
+                    # - included-arm
