@@ -5,7 +5,7 @@ version: '3.8'
 services:
 
   factory:
-    image: ${REPO_PREFIX-}cypress/factory
+    image: ${REPO_PREFIX-}mjhenkes/factory
     build:
       dockerfile: factory.Dockerfile
       target: factory
@@ -14,11 +14,11 @@ services:
         BASE_IMAGE: ${BASE_IMAGE}
         DEFAULT_NODE_VERSION: ${NODE_VERSION}
       tags:
-       - ${REPO_PREFIX-}cypress/factory:${FACTORY_VERSION}
+       - ${REPO_PREFIX-}mjhenkes/factory:${FACTORY_VERSION}
     command: node -v
 
   included:
-    image: ${REPO_PREFIX-}cypress/included
+    image: ${REPO_PREFIX-}mjhenkes/included
     build:
       target: included_image
       context: .
@@ -31,11 +31,11 @@ services:
         YARN_VERSION: ${YARN_VERSION}
         # WEBKIT_VERSION: ${WEBKIT_VERSION}
       tags:
-       - ${REPO_PREFIX-}cypress/included:${INCLUDED_IMAGE_TAG}
+       - ${REPO_PREFIX-}mjhenkes/included:${INCLUDED_IMAGE_TAG}
     command: node -v
 
   browsers:
-    image: ${REPO_PREFIX-}cypress/browsers
+    image: ${REPO_PREFIX-}mjhenkes/browsers
     build:
       target: default_image
       context: .
@@ -46,11 +46,11 @@ services:
         FIREFOX_VERSION: ${FIREFOX_VERSION}
         EDGE_VERSION: ${EDGE_VERSION}
       tags:
-       - ${REPO_PREFIX-}cypress/browsers:${BROWSERS_IMAGE_TAG}
+       - ${REPO_PREFIX-}mjhenkes/browsers:${BROWSERS_IMAGE_TAG}
     command: node -v
 
   base:
-    image: ${REPO_PREFIX-}cypress/base
+    image: ${REPO_PREFIX-}mjhenkes/base
     build:
       target: default_image
       context: .
@@ -58,12 +58,12 @@ services:
         FACTORY_VERSION: ${FACTORY_VERSION}
         YARN_VERSION: ${YARN_VERSION}
       tags:
-       - ${REPO_PREFIX-}cypress/base:${BASE_IMAGE_TAG}
+       - ${REPO_PREFIX-}mjhenkes/base:${BASE_IMAGE_TAG}
     command: node -v
 
   ## Unused images that we could release in the future if we choose.
   chrome:
-    image: "${REPO_PREFIX-}cypress/chrome"
+    image: "${REPO_PREFIX-}mjhenkes/chrome"
     build:
       target: default_image
       context: .
@@ -71,11 +71,11 @@ services:
         FACTORY_VERSION: ${FACTORY_VERSION}
         CHROME_VERSION: ${CHROME_VERSION}
       tags:
-       - ${REPO_PREFIX-}cypress/chrome:${CHROME_VERSION}
+       - ${REPO_PREFIX-}mjhenkes/chrome:${CHROME_VERSION}
     command: google-chrome --version
 
   edge:
-    image: ${REPO_PREFIX-}cypress/edge
+    image: ${REPO_PREFIX-}mjhenkes/edge
     build:
       target: default_image
       context: .
@@ -83,11 +83,11 @@ services:
         FACTORY_VERSION: ${FACTORY_VERSION}
         EDGE_VERSION: ${EDGE_VERSION}
       tags:
-       - ${REPO_PREFIX-}cypress/edge:${EDGE_VERSION}
+       - ${REPO_PREFIX-}mjhenkes/edge:${EDGE_VERSION}
     command: edge --version
 
   firefox:
-    image: ${REPO_PREFIX-}cypress/firefox
+    image: ${REPO_PREFIX-}mjhenkes/firefox
     build:
       target: default_image
       context: .
@@ -95,11 +95,11 @@ services:
         FACTORY_VERSION: ${FACTORY_VERSION}
         FIREFOX_VERSION: ${FIREFOX_VERSION}
       tags:
-       - ${REPO_PREFIX-}cypress/firefox:${FIREFOX_VERSION}
+       - ${REPO_PREFIX-}mjhenkes/firefox:${FIREFOX_VERSION}
     command: firefox --version
 
   # webkit:
-  #   image: ${REPO_PREFIX-}cypress/webkit
+  #   image: ${REPO_PREFIX-}mjhenkes/webkit
   #   build:
   #     target: default_image
   #     context: .
@@ -107,11 +107,11 @@ services:
   #       FACTORY_VERSION: ${FACTORY_VERSION}
   #       WEBKIT_VERSION: ${WEBKIT_VERSION}
   #     tags:
-  #     - ${REPO_PREFIX-}cypress/webkit:${WEBKIT_VERSION}
+  #     - ${REPO_PREFIX-}mjhenkes/webkit:${WEBKIT_VERSION}
   #   command: webkit --version
 
   cypress:
-    image: ${REPO_PREFIX-}cypress/cypress
+    image: ${REPO_PREFIX-}mjhenkes/cypress
     build:
       target: default_image
       context: .
@@ -119,11 +119,11 @@ services:
         FACTORY_VERSION: ${FACTORY_VERSION}
         CYPRESS_VERSION: ${CYPRESS_VERSION}
       tags:
-       - ${REPO_PREFIX-}cypress/cypress:${CYPRESS_VERSION}
+       - ${REPO_PREFIX-}mjhenkes/cypress:${CYPRESS_VERSION}
     command: cypress verify
 
   cypress-chrome:
-    image: ${REPO_PREFIX-}cypress/cypress-chrome
+    image: ${REPO_PREFIX-}mjhenkes/cypress-chrome
     build:
       target: default_image
       context: .
@@ -132,11 +132,11 @@ services:
         CYPRESS_VERSION: ${CYPRESS_VERSION}
         CHROME_VERSION: ${CHROME_VERSION}
       tags:
-       - ${REPO_PREFIX-}cypress/cypress-chrome:cypress-${CYPRESS_VERSION}-chrome-${CHROME_VERSION}
+       - ${REPO_PREFIX-}mjhenkes/cypress-chrome:cypress-${CYPRESS_VERSION}-chrome-${CHROME_VERSION}
     command: node -v
 
   cypress-edge:
-    image: ${REPO_PREFIX-}cypress/cypress-edge
+    image: ${REPO_PREFIX-}mjhenkes/cypress-edge
     build:
       target: default_image
       context: .
@@ -145,11 +145,11 @@ services:
         CYPRESS_VERSION: ${CYPRESS_VERSION}
         EDGE_VERSION: ${EDGE_VERSION}
       tags:
-       - ${REPO_PREFIX-}cypress/cypress-edge:cypress-${CYPRESS_VERSION}-edge-${EDGE_VERSION}
+       - ${REPO_PREFIX-}mjhenkes/cypress-edge:cypress-${CYPRESS_VERSION}-edge-${EDGE_VERSION}
     command: node -v
 
   cypress-firefox:
-    image: ${REPO_PREFIX-}cypress/cypress-firefox
+    image: ${REPO_PREFIX-}mjhenkes/cypress-firefox
     build:
       target: default_image
       context: .
@@ -158,7 +158,7 @@ services:
         CYPRESS_VERSION: ${CYPRESS_VERSION}
         FIREFOX_VERSION: ${FIREFOX_VERSION}
       tags:
-       - ${REPO_PREFIX-}cypress/cypress-firefox:cypress-${CYPRESS_VERSION}-firefox-${FIREFOX_VERSION}
+       - ${REPO_PREFIX-}mjhenkes/cypress-firefox:cypress-${CYPRESS_VERSION}-firefox-${FIREFOX_VERSION}
     command: node -v
 
   ## Test image
